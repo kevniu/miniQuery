@@ -26,8 +26,18 @@ class MiniQuery {
     EventDispatcher.trigger(this.element, eventName);
     return this;
   }
-  ajax({url, type, success, fail}) {
+  static ajax({url, type, success, fail}) {
     AjaxWrapper.request({url, type}).then(success).catch(fail);
+  }
+  static ready(callBack) {
+    if (document.readyState == "complete") {
+        callBack();
+    }
+    document.onreadystatechange = function() {
+        if (document.readyState == "complete") {
+            callBack();
+        }
+    }
   }
 }
 
@@ -112,18 +122,15 @@ class AjaxWrapper {
 }
 
 
-function miniQuery(element) {
-  return new MiniQuery(element);
-}
 
-miniQuery.DOM = DOM;
-//
-// var EventDispatcher = (function(){
-//   this.on = function(element, class, function(){
-//
-//   })
-//   this.trigger = function(element, class){
-//
-//   }
-//
-// })();
+var $ = miniQuery = (function(MiniQuery, DOM, EventDispatcher, AjaxWrapper){
+  var mq = function(element) {
+    return new MiniQuery(element);
+  }
+  mq.DOM = DOM;
+  mq.EventDispatcher= EventDispatcher;
+  mq.AjaxWrapper = AjaxWrapper;
+  mq.ready = MiniQuery.ready;
+  mq.ajax = MiniQuery.ajax;
+  return mq;
+})(MiniQuery, DOM, EventDispatcher, AjaxWrapper);
